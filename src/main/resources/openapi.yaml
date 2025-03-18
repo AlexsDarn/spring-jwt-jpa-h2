@@ -1,0 +1,197 @@
+openapi: 3.0.3
+info:
+  title: API de Playlists y Autenticación
+  description: API para gestionar listas de reproducción y autenticación con JWT.
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8080
+    description: Servidor de desarrollo
+
+paths:
+  /lists:
+    post:
+      summary: Crear una nueva playlist
+      description: Crea una lista de reproducción con canciones incluidas.
+      operationId: createPlaylist
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlaylistRequest'
+      responses:
+        "201":
+          description: Playlist creada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlaylistResponse'
+
+    get:
+      summary: Obtener todas las playlists
+      description: Retorna una lista de todas las listas de reproducción disponibles.
+      operationId: getAllPlaylists
+      responses:
+        "200":
+          description: Lista obtenida exitosamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PlaylistResponse'
+
+  /lists/{name}:
+    get:
+      summary: Obtener una playlist por nombre
+      description: Busca una lista de reproducción específica por su nombre.
+      operationId: getPlaylistByName
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Playlist encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlaylistResponse'
+        "404":
+          description: Playlist no encontrada
+
+    delete:
+      summary: Eliminar una playlist
+      description: Elimina una lista de reproducción por su nombre.
+      operationId: deletePlaylist
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Playlist eliminada exitosamente
+
+  /auth/register:
+    post:
+      summary: Registrar un nuevo usuario
+      description: Permite registrar un usuario en la aplicación.
+      operationId: registerUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        "200":
+          description: Usuario registrado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+
+  /auth/login:
+    post:
+      summary: Iniciar sesión
+      description: Permite a un usuario autenticarse y obtener un token JWT.
+      operationId: loginUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthRequest'
+      responses:
+        "200":
+          description: Inicio de sesión exitoso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        "401":
+          description: Credenciales incorrectas
+
+components:
+  schemas:
+    PlaylistRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "Dungeon Synth Classics"
+        description:
+          type: string
+          example: "Una recopilación de los mejores temas de dungeon synth."
+        songs:
+          type: array
+          items:
+            $ref: '#/components/schemas/Song'
+
+    PlaylistResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Dungeon Synth Classics"
+        description:
+          type: string
+          example: "Una recopilación de los mejores temas de dungeon synth."
+        songs:
+          type: array
+          items:
+            $ref: '#/components/schemas/Song'
+
+    Song:
+      type: object
+      properties:
+        title:
+          type: string
+          example: "The Forgotten Castle"
+        artist:
+          type: string
+          example: "Dark Lord"
+        album:
+          type: string
+          example: "Echoes of the Dungeon"
+        releaseYear:
+          type: integer
+          example: 1998
+        genre:
+          type: string
+          example: "Dungeon Synth"
+
+    RegisterRequest:
+      type: object
+      properties:
+        username:
+          type: string
+          example: "usuario123"
+        password:
+          type: string
+          example: "passwordSeguro123"
+
+    AuthRequest:
+      type: object
+      properties:
+        username:
+          type: string
+          example: "usuario123"
+        password:
+          type: string
+          example: "passwordSeguro123"
+
+    AuthResponse:
+      type: object
+      properties:
+        token:
+          type: string
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
